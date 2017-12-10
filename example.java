@@ -17,7 +17,7 @@ public class example {
         read1 = IO.readKeyboard("This will appear as a message. Put a String: ", read1);
         IO.writeln();
         int read2 = 0;
-        read2 = IO.readKeyboard("Antoher message. Put an integer: ", read2);
+        read2 = IO.readKeyboard("Another message. Put an integer: ", read2);
         IO.writeln();
         char[] read3 = new char[1024];
         read3 = IO.readKeyboard("The latest one. Put a String that will be saved as a char[]: ", read3);
