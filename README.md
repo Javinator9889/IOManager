@@ -30,7 +30,7 @@ Just clic *the button below button* and get all package. Then, just copy the fol
 
 [![IOManager](https://img.shields.io/badge/Download%20-GLOBAL-green.svg)](https://goo.gl/XTDef9)
 
-## I have used and I love it. What can I do?
+## I have used it and I love it. What can I do?
 
 You can do:
 + **Fork** these project and *develop* your custom version: I will like to see it
