@@ -1,0 +1,7 @@
+Hey there, I am "file.txt"
+
+I have some content inside, as you can read right now.
+Also I can have nothing, but if that was the case you could not be reading this..., no?
+
+Well, good bye. Do not forget to rate this project
+;)
