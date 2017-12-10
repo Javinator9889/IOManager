@@ -20,7 +20,7 @@ Finally, there are also **file managing** methods implemented:
 Here, *in the project*, you have an [example class](https://github.com/Javinator9889/IOManager/blob/master/example.java) in which you can see **the usage of all implemented** methods.
 There are *console writing* samples, *file reading* and *file writing* samples and more. For a fastest view, you can see the results right here:
 
-![Results of sample class](https://github.com/Javinator9889/IOManager/blob/master/output.png)
+![Results of sample class](https://github.com/Javinator9889/IOManager/blob/master/pics/output.png)
 
 Also, you have `file.txt` for a complete resolution of the sample. If all of this is not enough for you, here you have the **[complete wiki](https://goo.gl/5hQdrS)** where you will be able to find all the information you need.
 
