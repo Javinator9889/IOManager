@@ -26,7 +26,7 @@ Also, you have `file.txt` for a complete resolution of the sample. If all of thi
 
 ## Okay, okay. How to download?
 
-Just clic *the button below button* and get all package
+Just clic *the button below button* and get all package. Then, just copy the folder "IOManager" to your project root directory
 
 [![IOManager](https://img.shields.io/badge/Download%20-GLOBAL-green.svg)](https://goo.gl/XTDef9)
 
