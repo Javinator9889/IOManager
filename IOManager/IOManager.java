@@ -1,27 +1,33 @@
 /**
  * IOManager - Java lib for reading from keyboard and files. Also printing
  * Copyright (C) 2017 Javinator9889 - https://goo.gl/6tcVR3
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The license written above must be included in all distributions of this lib
  * with the author, year and link to the original lib.
- *
+ * <p>
  * The license written above must be included in all distributions of this lib
  * with the author, year and link to the original lib.
- *
+ * <p>
  * Contact me on: javialonso007@hotmail.es
+ * <p>
+ * The license written above must be included in all distributions of this lib
+ * with the author, year and link to the original lib.
+ * <p>
+ * The license written above must be included in all distributions of this lib
+ * with the author, year and link to the original lib.
  */
 
 /**
@@ -33,6 +39,8 @@ package IOManager;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class IOManager {
     private static BufferedReader bufferedReader;
@@ -201,7 +209,7 @@ public class IOManager {
      * @param filename contains the name of the file
      * @param isBytes is true when a bytes object will be created. False, in other case
      */
-    public void createFile(String filename, boolean isBytes) {
+    public static void createFile(String filename, boolean isBytes) {
         if (isBytes) {
             try {
                 new FileOutputStream(filename).close();
@@ -214,6 +222,75 @@ public class IOManager {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Method for creating any necessary directories for a specific dir
+     * @param dirname contains the directory (or directorys) that will be created
+     */
+    public static void createDir(String dirname) {
+        if (!(new File(dirname).mkdirs()))
+            throw new IOErrors.dirCreationError("There was an error while trying to create the directory. Please, check permissions");
+    }
+
+    /**
+     * Delete specified dir and its content
+     * @param dirname String that contains the directory to be deleted
+     */
+    public static void deleteDir(String dirname) {
+        File[] contents = new File(dirname).listFiles();
+        if (contents != null) {
+            for (File file : contents)
+                deleteDir(file.getPath());
+        }
+        if (!(new File(dirname).delete()))
+            throw new IOErrors.dirEliminationError("There was an error while trying to remove the directory: " + dirname + ". Please, check permissions");
+    }
+
+    /**
+     * Delete specified file
+     * @param filename String that contains the file to be deleted
+     */
+    public static void deleteFile(String filename) {
+        if (!(new File(filename).delete()))
+            throw new IOErrors.fileEliminationError("There was an error while trying to remove file: "+filename+". Please, check permissions");
+    }
+
+    /**
+     * Move files (or directories) to specified path
+     * @param originPath String that contains the original file/folder to be moved
+     * @param destinationPath String that contains the destination path to save the old file/directories
+     * @param replaceExisting boolean that indicates if replace any existing file/directory if duplicated
+     */
+    public static void moveFilesDirs(String originPath, String destinationPath, boolean replaceExisting) {
+        try {
+            if (replaceExisting)
+                Files.move(Paths.get(originPath), Paths.get(destinationPath), REPLACE_EXISTING);
+            else
+                Files.move(Paths.get(originPath), Paths.get(destinationPath));
+        } catch (IOException e) {
+            IO.write("There was an error while trying to move the file/dir specified. Full trace: \n");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Copy files (or directories) to specified path
+     * @param originPath String that contains the original file/folder to be copied
+     * @param destinationPath String that contains the destination path to save the old file/directories
+     * @param replaceExisting boolean that indicates if replace any existing file/directory if duplicated
+     * By default, symlinks are copied as symlinks (not their content)
+     */
+    public static void copyFilesDirs(String originPath, String destinationPath, boolean replaceExisting) {
+        try {
+            if (replaceExisting)
+                Files.copy(Paths.get(originPath), Paths.get(destinationPath), REPLACE_EXISTING);
+            else
+                Files.copy(Paths.get(originPath), Paths.get(destinationPath));
+        } catch (IOException e) {
+            IO.write("There was an error while trying to copy the file/dir specified. Full trace: \n");
+            e.printStackTrace();
         }
     }
 
@@ -360,6 +437,24 @@ public class IOManager {
                 super(cause);
             }
         }
+
+        public static class dirCreationError extends IOErrors {
+            public dirCreationError(String cause) {
+                super(cause);
+            }
+        }
+
+        public static class dirEliminationError extends IOErrors {
+            public dirEliminationError(String cause) {
+                super(cause);
+            }
+        }
+
+        public static class fileEliminationError extends IOErrors {
+            public fileEliminationError(String cause) {
+                super(cause);
+            }
+        }
     }
 
     /**
@@ -375,10 +470,7 @@ public class IOManager {
      */
     public void close() throws Throwable {
         try {
-            bufferedReader.close();
-            bufferedWriter.close();
-            FILENAME = null;
-            ENCODING = null;
+            closeFile();
         } finally {
             super.finalize();
         }
