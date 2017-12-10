@@ -6,7 +6,7 @@
 
 This Java class uses *native methods* and other *implemented methods* for doing **everyday stuff** easily and fastly. For example, instead of typing `System.out.println` now is just `write` (or `writeln`).
 
-There is also an *adaptative method* for reading from keyboard in Java: do not think more in **declaring specific types** of vars, and then capture them with a very long syntax and parameters. Now, just assign the result of `readKeyboard` to your var.
+There is also an *adaptative method* for reading from keyboard in Java: do not think more in **declaring specific types** of vars, and then capture them with a very long (and sometimes complex) syntax and parameters. Now, just assign the result of `readKeyboard` to your var.
 
 Finally, there are also **file managing** methods implemented:
 + *Open file*
