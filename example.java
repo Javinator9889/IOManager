@@ -2,7 +2,7 @@ import IOManager.IOManager;
 
 import java.util.Arrays;
 
-public class application {
+public class example {
     public static void main(String[] args) {
         //Init IOManager
         IOManager IO = IOManager.initIO();
