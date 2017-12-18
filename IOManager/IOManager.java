@@ -34,19 +34,26 @@
  * The license written above must be included in all distributions of this lib
  * with the author, year and link to the original lib.
  */
+
+/**
+ * Updated - 18/12/17
+ */
 package IOManager;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class IOManager {
     private static BufferedReader bufferedReader;
     private static BufferedWriter bufferedWriter;
+    private static BufferedReader keyBufferedReader = new BufferedReader(new InputStreamReader(System.in));
     private static String FILENAME = null;
     private static String ENCODING = null;
+    private static boolean BYTES = false;
     private static IOManager IO = new IOManager();
 
     /**
@@ -92,49 +99,48 @@ public class IOManager {
      * @return gets the value the user put from keyboard.
      */
     public <Any> Any readKeyboard(String displayMessage, Object saveVar) {
-        bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         try {
             if (displayMessage != null)
                 write(displayMessage);
             switch (saveVar.getClass().getName()) {
                 case "java.lang.Integer": {
-                    saveVar = Integer.parseInt(bufferedReader.readLine());
+                    saveVar = Integer.parseInt(keyBufferedReader.readLine());
                     break;
                 }
                 case "java.lang.Character": {
-                    saveVar = bufferedReader.readLine().charAt(0);
+                    saveVar = keyBufferedReader.readLine().charAt(0);
                     break;
                 }
                 case "java.lang.String": {
-                    saveVar = bufferedReader.readLine();
+                    saveVar = keyBufferedReader.readLine();
                     break;
                 }
                 case "java.lang.Byte": {
-                    saveVar = Byte.parseByte(bufferedReader.readLine());
+                    saveVar = Byte.parseByte(keyBufferedReader.readLine());
                     break;
                 }
                 case "java.lang.Long": {
-                    saveVar = Long.parseLong(bufferedReader.readLine());
+                    saveVar = Long.parseLong(keyBufferedReader.readLine());
                     break;
                 }
                 case "java.lang.Float": {
-                    saveVar = Float.parseFloat(bufferedReader.readLine());
+                    saveVar = Float.parseFloat(keyBufferedReader.readLine());
                     break;
                 }
                 case "java.lang.Double": {
-                    saveVar = Double.parseDouble(bufferedReader.readLine());
+                    saveVar = Double.parseDouble(keyBufferedReader.readLine());
                     break;
                 }
                 case "java.lang.Short": {
-                    saveVar = Short.parseShort(bufferedReader.readLine());
+                    saveVar = Short.parseShort(keyBufferedReader.readLine());
                     break;
                 }
                 case "java.lang.Boolean": {
-                    saveVar = Boolean.parseBoolean(bufferedReader.readLine());
+                    saveVar = Boolean.parseBoolean(keyBufferedReader.readLine());
                     break;
                 }
                 case "[C": {
-                    saveVar = bufferedReader.readLine().toCharArray();
+                    saveVar = keyBufferedReader.readLine().toCharArray();
                     break;
                 }
                 default: {
@@ -162,6 +168,32 @@ public class IOManager {
             bufferedWriter = new BufferedWriter(new FileWriter(new File(filename), true));
             FILENAME = filename;
             ENCODING = encoding;
+        } catch (UnsupportedEncodingException e) {
+            write("The encoding you choose is not supported by the system. Full trace: ");
+            write("\n");
+            e.printStackTrace();
+        } catch (IOException e) {
+            write("It is recommended to include all the path to the file. In Windows, add double backslash (\\\\)\n");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Method for reading files, by passing the filename as a String.
+     * @param filename is a String which has the filename. For a correct usage, this must include all the path to the
+     *                 file: String filename = "C:\\Users\\myFile.txt";
+     * @param bytes is a boolean that says if the file is a byte's one
+     */
+    public void openFile(String filename, boolean bytes) {
+        try {
+            String encoding = new InputStreamReader(new FileInputStream(filename)).getEncoding();
+            if (encoding == null || encoding.equals(""))
+                encoding = "UTF-8";
+            bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(filename), encoding));
+            bufferedWriter = new BufferedWriter(new FileWriter(new File(filename), true));
+            FILENAME = filename;
+            ENCODING = encoding;
+            BYTES = true;
         } catch (UnsupportedEncodingException e) {
             write("The encoding you choose is not supported by the system. Full trace: ");
             write("\n");
@@ -202,6 +234,33 @@ public class IOManager {
      */
     public String getEncoding() {
         return ENCODING;
+    }
+
+    /**
+     * Method for converting any type of object to byte array
+     * @param obj value to be converted
+     * @return byte[] array
+     * @throws IOException when is not possible to convert
+     */
+    private static byte[] toByteArray(Object obj) throws IOException {
+        byte[] bytes = null;
+        ByteArrayOutputStream bos = null;
+        ObjectOutputStream oos = null;
+        try {
+            bos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(bos);
+            oos.writeObject(obj);
+            oos.flush();
+            bytes = bos.toByteArray();
+        } finally {
+            if (oos != null) {
+                oos.close();
+            }
+            if (bos != null) {
+                bos.close();
+            }
+        }
+        return bytes;
     }
 
     /**
@@ -309,6 +368,26 @@ public class IOManager {
     }
 
     /**
+     * Returns a String that contains the specified line from file
+     * @param line is a long that is the line number
+     * @return a String::null if there was an error. The line, in other case
+     */
+    public String readLine(long line) {
+        if (line > countLines()) {
+            throw new IOErrors.LineOutOfRange("The line is out of range (number of lines: " + countLines() + ")");
+        } else {
+            try {
+                Stream<String> getLine = Files.lines(Paths.get(FILENAME));
+                return getLine.skip(line).findFirst().get();
+            } catch (IOException e) {
+                writeln("There was a problem while trying to get the specified line. Full trace:");
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get current number of lines in file
      * @return long
      */
@@ -341,7 +420,11 @@ public class IOManager {
      */
     public void fWrite(Object message) {
         try {
-            bufferedWriter.write(String.valueOf(message));
+            if (BYTES) {
+                fWriteb(message);
+            } else {
+                bufferedWriter.write(String.valueOf(message));
+            }
         } catch (IOException e) {
             write("There was an error while trying to write into your file. Full trace: \n");
             e.printStackTrace();
@@ -389,8 +472,13 @@ public class IOManager {
      * @param message is a String that contains the bytes object
      * Changes are applied automatically
      */
-    public void fWriteb(String message) {
-        fWriteb(message.getBytes());
+    public void fWriteb(Object message) {
+        try {
+            fWriteb(toByteArray(message));
+        } catch (IOException e) {
+            writeln("There was a problem while trying to convert your data to byte. Full trace:");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -416,6 +504,7 @@ public class IOManager {
             bufferedWriter.close();
             FILENAME = null;
             ENCODING = null;
+            BYTES = false;
             return 0;
         } catch (IOException e) {
             e.printStackTrace();
@@ -452,6 +541,12 @@ public class IOManager {
 
         public static class fileEliminationError extends IOErrors {
             public fileEliminationError(String cause) {
+                super(cause);
+            }
+        }
+
+        public static class LineOutOfRange extends IOErrors {
+            public LineOutOfRange(String cause) {
                 super(cause);
             }
         }
