@@ -36,7 +36,7 @@
  */
 
 /**
- * Updated - 18/12/17
+ * Updated - 16/01/2018
  */
 package IOManager;
 
@@ -147,7 +147,7 @@ public class IOManager {
                     throw new IOManager.IOErrors.AttributesError("Incompatible typos were found.\nTrying to read String/Integer/Byte... and found: " + saveVar.getClass().getName());
                 }
             }
-            return ((Any) (saveVar.getClass().cast(saveVar)));
+            return (Any) saveVar;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -282,6 +282,20 @@ public class IOManager {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Method for creating (and returning) a FileOutputStream file
+     * @param filename contains the path
+     * @return FileOutputStream object for working with serialization
+     */
+    private static FileOutputStream createFile(String filename) {
+        try {
+            return new FileOutputStream(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -510,6 +524,51 @@ public class IOManager {
             e.printStackTrace();
             return -1;
         }
+    }
+
+    /**
+     * Class for writing serialized object into a file
+     * @param object_to_save Object which will be saved
+     * @param filename path
+     */
+    public static void serializeObject(Object object_to_save, String filename) {
+        FileOutputStream fOut = createFile(filename);
+        if (fOut != null) {
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(fOut);
+                out.writeObject(object_to_save);
+                out.close();
+                fOut.close();
+            } catch (IOException e) {
+                IO.write("There was an error while trying to create your serializable object. Full trace: \n");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Reads an object from a given filename
+     * @param filename path
+     * @param <Any> identifies what object is returning and does a "cast"
+     * @return any type of object
+     */
+    public static <Any> Any getSerializableObject(String filename) {
+        Object returnable = null;
+        try {
+            FileInputStream fIn = new FileInputStream(filename);
+            ObjectInputStream obj = new ObjectInputStream(fIn);
+            returnable = obj.readObject();
+            obj.close();
+            fIn.close();
+            return (Any) returnable;
+        } catch (IOException e) {
+            IO.write("There was an error while trying to open your serialized object. Full trace: \n");
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            IO.write("There was an error while trying to read your serialized object. Full trace: \n");
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
